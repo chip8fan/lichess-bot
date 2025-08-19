@@ -2,7 +2,7 @@ import berserk # python wrapper for lichess API
 from dotenv import load_dotenv # load dotenv
 import os # get the environment variable using the os library
 import chess # core chess logic that makes valid random moves possible
-import random # random library (might replace with secrets)
+import secrets # random library but more secure
 import sys # to exit the program if it is needed
 import time # to rate-limit requests to the lichess API
 def get_legal_moves(moves_list, position=""): # get_legal_moves is almost identical to is_game_over
@@ -41,6 +41,9 @@ for response in client.bots.stream_incoming_events(): # check for challenges and
         if response['challenge']['rated'] == True: # check if the challenge is rated
             client.bots.decline_challenge(game_id, "This bot can only play casual games.") # if it is, decline the challenge
             sys.exit() # and exit
+        if response['challenge']['timeControl']['type'] != 'unlimited': # check if challenge has no time control
+            client.bots.decline_challenge(game_id, "This bot can only play unlimited time control games.") # if it does not, decline the challenge
+            sys.exit() # and exit
         else: # otherwise
             client.bots.accept_challenge(game_id) # accept the challenge
         break # and exit the loop
@@ -51,18 +54,23 @@ for response in client.bots.stream_game_state(game_id): # check for moves
         moves = response['state']['moves'] # then this should work
     start_pos = response['initialFen'] # set the start position to the initial FEN
     break # and exit the loop
+error_count = 0 # count the amount of errors
 while True: # while bot is running
+    c = 0 # counter for artificial timeout
     try: # try to make a move
-        move = random.choice(get_legal_moves(moves, start_pos)) # get a random move
+        legal_moves = get_legal_moves(moves, start_pos) # get a list of random moves
+        move = legal_moves[secrets.randbelow(len(legal_moves))] # get a random move
         client.bots.make_move(game_id, move) # and make the move
     except berserk.exceptions.ResponseError: # but if the bot does NOT get the first move
-        pass # then it will throw an error, which will be ignored
+        error_count += 1 # add an error
+    if error_count >= 10: # if too many errors
+        sys.exit() # exit
     for response in client.bots.stream_game_state(game_id): # get the events in the game
         try: # try to get the moves
             moves = response['moves'] # get the moves
         except KeyError: # but if this doesn't work
             moves = response['state']['moves'] # then this should work
-        if str(moves).endswith(move) == False: # check if the other side has made a move
+        if str(moves).endswith(move) == False or c >= 10: # check if the other side has made a move or the counter is 10 (an artificial timeout)
             break # if they have, break
+        c += 1 # increment the counter by 1
     time.sleep(1) # sleep to prevent 429
-# problem: if a challenge is accepted but then an abort happens, the bot is simply in a blocking mode until it makes too many requests (which throws a 429 Client Error)
