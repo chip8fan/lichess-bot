@@ -38,11 +38,11 @@ for response in client.bots.stream_incoming_events(): # check for challenges and
     elif response['type'] == "challenge": # if a challenge event happens
         print(response) # log the response
         game_id = response['challenge']['id'] # and get the game id
+        if response['challenge']['speed'] == 'bullet' or response['challenge']['speed'] == 'ultraBullet': # check if challenge is bullet or ultrabullet
+            client.bots.decline_challenge(game_id, "This bot cannot play bullet.") # if it is a bullet challenge reject it
+            sys.exit() # and exit
         if response['challenge']['rated'] == True: # check if the challenge is rated
             client.bots.decline_challenge(game_id, "This bot can only play casual games.") # if it is, decline the challenge
-            sys.exit() # and exit
-        if response['challenge']['timeControl']['type'] != 'unlimited': # check if challenge has no time control
-            client.bots.decline_challenge(game_id, "This bot can only play unlimited time control games.") # if it does not, decline the challenge
             sys.exit() # and exit
         else: # otherwise
             client.bots.accept_challenge(game_id) # accept the challenge
@@ -73,4 +73,4 @@ while True: # while bot is running
         if str(moves).endswith(move) == False or c >= 10: # check if the other side has made a move or the counter is 10 (an artificial timeout)
             break # if they have, break
         c += 1 # increment the counter by 1
-    time.sleep(1) # sleep to prevent 429
+    time.sleep(5) # sleep to prevent 429
