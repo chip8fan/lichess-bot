@@ -73,4 +73,4 @@ while True: # while bot is running
         if str(moves).endswith(move) == False or c >= 10: # check if the other side has made a move or the counter is 10 (an artificial timeout)
             break # if they have, break
         c += 1 # increment the counter by 1
-    time.sleep(5) # sleep to prevent 429
+    time.sleep(secrets.randbelow(10)) # sleep to prevent 429
