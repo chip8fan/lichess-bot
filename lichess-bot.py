@@ -15,18 +15,6 @@ def get_legal_moves(moves_list, position=""): # get_legal_moves is almost identi
         if move != '': # if move is not empty
             board.push_uci(move) # make the move
     return [str(move).replace("Move.from_uci('", "").replace("')", "") for move in list(board.legal_moves)] # return a list of legal moves
-def is_game_over(moves_list, position=""): # is_game_over is nearly an identical function to get_legal_moves
-    moves_list = moves_list.split(" ") # get the individual moves
-    if position == 'startpos': # if the initial FEN is startpos
-        board = chess.Board() # initialize a chess.Board()
-    else: # if the initial FEN is NOT startpos
-        board = chess.Board(fen=position) # load a chess.Board() with the fen
-    for move in moves_list: # get each move in the move list
-        try: # try to make a move
-            board.push_uci(move) # make the move
-        except chess.InvalidMoveError: # EXCEPT if the move is invalid
-            pass # then ignore the move
-    return board.is_game_over() # return if the game is over or not
 load_dotenv() # load the .env file
 key = os.environ.get("BOT_KEY") # get the BOT_KEY from the .env file (the secure way to store environment variables, NEVER hardcode a key into an app)
 session = berserk.TokenSession(key) # initialize a session
