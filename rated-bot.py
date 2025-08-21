@@ -19,6 +19,8 @@ for response in client.bots.stream_incoming_events(): # check for challenges and
         if response['challenge']['speed'] == 'ultraBullet': # check if challenge is ultrabullet
             client.bots.decline_challenge(game_id, "This bot cannot play ultrabullet.") # if it is an ultrabullet challenge reject it
             sys.exit() # and exit
+        else:
+            client.bots.accept_challenge(game_id)
         break # and exit the loop
 for response in client.bots.stream_game_state(game_id): # check for moves
     try: # try to get the moves
