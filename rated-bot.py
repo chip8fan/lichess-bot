@@ -1,20 +1,10 @@
 import berserk # python wrapper for lichess API
 from dotenv import load_dotenv # load dotenv
 import os # get the environment variable using the os library
-import chess # core chess logic that makes valid random moves possible
 import secrets # random library but more secure
 import sys # to exit the program if it is needed
-import time # to rate-limit requests to the lichess API
-def get_legal_moves(moves_list, position=""): # get_legal_moves is almost identical to is_game_over
-    moves_list = moves_list.split(" ") # get the individual moves
-    if position == 'startpos': # if the initial FEN is startpos
-        board = chess.Board() # initialize a chess.Board()
-    else: # if the initial FEN is NOT startpos
-        board = chess.Board(fen=position) # load a chess.Board() with the fen
-    for move in moves_list: # get each move in the move list
-        if move != '': # if move is not empty
-            board.push_uci(move) # make the move
-    return [str(move).replace("Move.from_uci('", "").replace("')", "") for move in list(board.legal_moves)] # return a list of legal moves
+import engine
+import time
 load_dotenv() # load the .env file
 key = os.environ.get("BOT_KEY") # get the BOT_KEY from the .env file (the secure way to store environment variables, NEVER hardcode a key into an app)
 session = berserk.TokenSession(key) # initialize a session
@@ -26,14 +16,9 @@ for response in client.bots.stream_incoming_events(): # check for challenges and
     elif response['type'] == "challenge": # if a challenge event happens
         print(response) # log the response
         game_id = response['challenge']['id'] # and get the game id
-        if response['challenge']['speed'] == 'bullet' or response['challenge']['speed'] == 'ultraBullet': # check if challenge is bullet or ultrabullet
-            client.bots.decline_challenge(game_id, "This bot cannot play bullet.") # if it is a bullet challenge reject it
+        if response['challenge']['speed'] == 'ultraBullet': # check if challenge is ultrabullet
+            client.bots.decline_challenge(game_id, "This bot cannot play ultrabullet.") # if it is an ultrabullet challenge reject it
             sys.exit() # and exit
-        if response['challenge']['rated'] == True: # check if the challenge is rated
-            client.bots.decline_challenge(game_id, "This bot can only play casual games.") # if it is, decline the challenge
-            sys.exit() # and exit
-        else: # otherwise
-            client.bots.accept_challenge(game_id) # accept the challenge
         break # and exit the loop
 for response in client.bots.stream_game_state(game_id): # check for moves
     try: # try to get the moves
@@ -43,11 +28,16 @@ for response in client.bots.stream_game_state(game_id): # check for moves
     start_pos = response['initialFen'] # set the start position to the initial FEN
     break # and exit the loop
 error_count = 0 # count the amount of errors
+chess_engine = engine.Engine()
 while True: # while bot is running
     c = 0 # counter for artificial timeout
     try: # try to make a move
-        legal_moves = get_legal_moves(moves, start_pos) # get a list of random moves
-        move = legal_moves[secrets.randbelow(len(legal_moves))] # get a random move
+        start = time.perf_counter()
+        legal_moves = chess_engine.evaluate(all_moves=moves, fen=start_pos, depth=4)
+        move = legal_moves[1][secrets.randbelow(len(legal_moves))] # get a random move
+        end = time.perf_counter()-start
+        print(legal_moves)
+        print(f"{move} made in {end} seconds, eval {legal_moves[0]}")
         client.bots.make_move(game_id, move) # and make the move
     except berserk.exceptions.ResponseError: # but if the bot does NOT get the first move
         error_count += 1 # add an error
@@ -61,4 +51,3 @@ while True: # while bot is running
         if str(moves).endswith(move) == False or c >= 10: # check if the other side has made a move or the counter is 10 (an artificial timeout)
             break # if they have, break
         c += 1 # increment the counter by 1
-    time.sleep(secrets.randbelow(10)) # sleep to prevent 429
