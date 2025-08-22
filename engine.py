@@ -32,21 +32,33 @@ class Engine():
             color = 1
         elif self.board.turn == chess.BLACK:
             color = -1
-        return self.negamax(self.board, depth, color)
-    def negamax(self, board=chess.Board, depth=int, color=int): # implementation in python of wikipedia's pseudocode of the base negamax algorithm
+        #return self.get_all_moves(self.board, depth, -sys.maxsize, sys.maxsize, color)
+        return self.get_all_moves(self.board, depth, color)
+    def negamax(self, board=chess.Board, depth=int, alpha=int, beta=int, color=int): # implementation in python of wikipedia's pseudocode of the base negamax algorithm
         if depth == 0 or board.is_game_over():
-            return [color*self.get_material(board)]
+            return color*self.get_material(board)
         value = -sys.maxsize
         nodes = sorted([str(move).replace("Move.from_uci('", "").replace("')", "") for move in list(board.legal_moves)])
-        moves = []
         for node in nodes:
             temp_board = board.copy()
             temp_board.push_uci(node)
-            negamax = -self.negamax(temp_board, depth-1, -color)[0]
-            if negamax > value:
-                moves.clear()
-                moves.append(node)
-                value = negamax
-            elif negamax == value:
-                moves.append(node)
-        return [value, moves]
+            value = max(-self.negamax(temp_board, depth-1, -beta, -alpha, -color), value)
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+        return value
+    def get_all_moves(self, board=chess.Board, depth=int, color=int):
+        moves = sorted([str(move).replace("Move.from_uci('", "").replace("')", "") for move in list(board.legal_moves)])
+        high_score = -sys.maxsize
+        preferred_moves = []
+        for move in moves:
+            temp_board = board.copy()
+            temp_board.push_uci(move)
+            score = -self.negamax(temp_board, depth-1, -sys.maxsize, sys.maxsize, -color) 
+            if score > high_score:
+                preferred_moves.clear()
+                preferred_moves.append(move)
+                high_score = score
+            elif score == high_score:
+                preferred_moves.append(move)
+        return [high_score, preferred_moves]
