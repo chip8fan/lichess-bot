@@ -46,7 +46,6 @@ for response in client.bots.stream_incoming_events():
         except KeyError:
             time_remaining = 'unlimited'
         break
-def play_game()
 chess_engine = engine.Engine()
 count = 0
 def make_move(move_list, time_limit):
