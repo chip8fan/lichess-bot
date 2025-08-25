@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 import engine
 import secrets
-import sys
 import time
 def not_empty(moves):
     if moves == ['']:
@@ -25,9 +24,6 @@ for response in client.bots.stream_incoming_events():
     if response.get("type") == "challenge":
         game_id = response['challenge']['id']
         color = invert_color(response['challenge']['finalColor'])
-        if response['challenge']['rated'] == True:
-            client.bots.decline_challenge(game_id, "rated")
-            sys.exit()
         client.bots.accept_challenge(game_id)
         speed = response['challenge']['speed']
         try:
