@@ -63,6 +63,9 @@ class Engine():
         self.key = os.environ.get("BOT_KEY")
         self.session = berserk.TokenSession(self.key)
         self.client = berserk.Client(session=self.session)
+        self.transposition_table = {
+
+        }
     def reverse_result(self, result):
         if result == "win":
             return "loss"
@@ -144,8 +147,15 @@ class Engine():
                     best_moves.append(node)
             return [high_score, best_moves, False]
     def negamax(self, board=chess.Board, depth=int, alpha=int, beta=int, color=int): # implementation in python of wikipedia's pseudocode of the base negamax algorithm with alpha-beta pruning
+        key = board.fen()
+        if key in self.transposition_table:
+            cached = self.transposition_table[key]
+            if cached['depth'] >= depth:
+                return cached['score']
         if board.is_game_over() or board.can_claim_draw() or depth == 0:
-            return color*self.get_material(board)
+            score = color*self.get_material(board)
+            self.transposition_table[key] = {'score': score, 'depth': depth}
+            return score
         value = -sys.maxsize
         nodes = [move.uci() for move in board.legal_moves]
         new_list = []
@@ -166,25 +176,30 @@ class Engine():
             alpha = max(alpha, value)
             if alpha >= beta:
                 break
+        self.transposition_table[key] = {'score': value, 'depth': depth}
         return value
     def mvv_lva(self, aggressor, victim):
         difference = 0
         if aggressor == chess.PAWN:
             difference -= 1
-        elif aggressor == chess.KNIGHT or aggressor == chess.BISHOP:
+        elif aggressor == chess.KNIGHT:
+            difference -= 2
+        elif aggressor == chess.BISHOP:
             difference -= 3
         elif aggressor == chess.ROOK:
-            difference -= 5
+            difference -= 4
         elif aggressor == chess.QUEEN:
-            difference -= 9
+            difference -= 5
+        elif aggressor == chess.KING:
+            difference -= 6
         if victim == chess.PAWN:
-            difference += 1
+            difference += 10
         elif victim == chess.KNIGHT or victim == chess.BISHOP:
-            difference += 3
+            difference += 30
         elif victim == chess.ROOK:
-            difference += 5
+            difference += 50
         elif victim == chess.QUEEN:
-            difference += 9
+            difference += 90
         return difference
 if __name__ == "__main__":
     engine = Engine()

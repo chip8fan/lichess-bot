@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import engine
 import secrets
 import time
+num = 200
 def not_empty(moves):
     if moves == ['']:
         return 0
@@ -48,6 +49,7 @@ def make_move(move_list, time_limit):
     depth = 1
     start = time.perf_counter()
     while time.perf_counter()-start < time_limit and depth <= 100:
+        print(f"depth={depth}")
         moves = chess_engine.evaluate(move_list, fen, depth)
         move = moves[1][secrets.randbelow(len(moves[1]))]
         depth += 1
@@ -56,13 +58,13 @@ def make_move(move_list, time_limit):
     client.bots.make_move(game_id, move)
 if isMyTurn:
     if time_remaining != 'unlimited':
-        make_move("", time_remaining/200)
+        make_move("", time_remaining/num)
     else:
         make_move("", 60*60*24)
     isMyTurn = False
 elif color == "white" and fen == "startpos":
     if time_remaining != 'unlimited':
-        make_move("", time_remaining/200)
+        make_move("", time_remaining/num)
     else:
         make_move("", 60*60*24)
 for response in client.bots.stream_game_state(game_id):
@@ -81,7 +83,7 @@ for response in client.bots.stream_game_state(game_id):
         bot_turn = (count%2==1 and color=="black") or (count%2==0 and color=="white")
         if bot_turn:
             if time_remaining != 'unlimited':
-                make_move(response['moves'], time_remaining/200)
+                make_move(response['moves'], time_remaining/num)
             else:
                 make_move(response['moves'], 60*60*24)
     else:
