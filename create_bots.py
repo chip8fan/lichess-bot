@@ -47,5 +47,5 @@ for root, folders, files in os.walk(os.getcwd() + "/engines"):
                     for line in opening_lines:
                         opening_file.write(line+"\n")
                     opening_file.close()
-            except chess.engine.EngineTerminatedError:
+            except:
                 pass
