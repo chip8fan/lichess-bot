@@ -11,7 +11,7 @@ for root, folders, files in os.walk(os.getcwd() + "/engines"):
                 directory_name = file_name.split("/")
                 directory_name.pop()
                 directory_name = "/".join(directory_name) + "/"
-                if os.path.isdir(binary_name) == False:
+                if os.path.isdir(f"bots/{binary_name}") == False:
                     os.chdir("bots")
                     os.system("git clone https://github.com/lichess-bot-devs/lichess-bot.git")
                     os.rename("lichess-bot", binary_name)
