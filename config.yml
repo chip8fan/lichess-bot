@@ -1,0 +1,23 @@
+token: ""
+url: "http://localhost:8080/"
+engine:
+  dir: ""
+  name: ""
+  protocol: "uci"
+  polyglot:
+    enabled: true
+    book:
+      standard:
+        - "/Users/me/Downloads/chess/book.bin"
+challenge:
+  accept_bot: true
+  time_controls:
+    - bullet
+    - blitz
+    - rapid
+    - classical
+  modes:
+    - casual
+    - rated
+  variants:
+    - standard

@@ -7,5 +7,5 @@ weights = []
 for link in links:
     if '.pb.gz' in link.get('href'):
         weights.append(link)
-if os.path.isdir("engines/lc0/build/release"):
-    os.system(f"wget -P engines/lc0/build/release {str(weights[-1]).split('"')[1].split('"')[0]}")
+if os.path.isdir("lc0"):
+    os.system(f"wget -P lc0 {str(weights[-1]).split('"')[1].split('"')[0]}")
