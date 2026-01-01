@@ -4,11 +4,9 @@ engine:
   dir: ""
   name: ""
   protocol: "uci"
-  polyglot:
+  lichess_cloud_analysis:
     enabled: true
-    book:
-      standard:
-        - "/Users/me/Downloads/chess/book.bin"
+    move_quality: "good"
 challenge:
   accept_bot: true
   time_controls:

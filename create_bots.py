@@ -7,6 +7,8 @@ engines.close()
 config = open("config.yml")
 config_lines = [line.rstrip() for line in config]
 config.close()
+if os.path.isdir("lichess-bot") == False:
+    os.system("git clone https://github.com/lichess-bot-devs/lichess-bot.git")
 for engine in engine_releases:
     if os.path.isdir(engine[1]) == False:
         shutil.copytree("lichess-bot", engine[1])
