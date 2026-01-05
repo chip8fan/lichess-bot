@@ -12,10 +12,10 @@ if os.path.isdir("lichess-bot") == False:
 for engine in engine_releases:
     if os.path.isdir(engine[1]) == False:
         shutil.copytree("lichess-bot", engine[1])
-        engine_lines = copy.deepcopy(config_lines)
-        engine_lines[engine_lines.index('  dir: ""')] = f'  dir: "{engine[0]}"'
-        engine_lines[engine_lines.index('  name: ""')] = f'  name: "{engine[1]}"'
-        file = open(f"{engine[1]}/config.yml", "w")
-        for line in engine_lines:
-            file.write(line+"\n")
-        file.close()
+    engine_lines = copy.deepcopy(config_lines)
+    engine_lines[engine_lines.index('  dir: ""')] = f'  dir: "{engine[0]}"'
+    engine_lines[engine_lines.index('  name: ""')] = f'  name: "{engine[1]}"'
+    file = open(f"{engine[1]}/config.yml", "w")
+    for line in engine_lines:
+        file.write(line+"\n")
+    file.close()

@@ -4,9 +4,10 @@ engine:
   dir: ""
   name: ""
   protocol: "uci"
-  lichess_cloud_analysis:
-    enabled: true
-    move_quality: "good"
+  online_moves:
+    lichess_cloud_analysis:
+      enabled: true
+      move_quality: "good"
 challenge:
   accept_bot: true
   time_controls:
