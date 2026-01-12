@@ -5,7 +5,8 @@ engine:
   name: ""
   protocol: "uci"
   online_moves:
-    lichess_cloud_analysis:
+    max_depth: 10
+    chessdb_book:
       enabled: true
       move_quality: "good"
 challenge:
