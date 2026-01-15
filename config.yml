@@ -8,6 +8,8 @@ engine:
     max_depth: 10
     chessdb_book:
       enabled: true
+      min_time: 0
+      max_time: 9223372036854775807
       move_quality: "good"
 challenge:
   accept_bot: true
