@@ -2,6 +2,7 @@
 **/__pycache__
 /engines/*
 !/engines/README.md
+!/engines/get_egtb.py
 lichess_bot_auto_logs/*
 .vscode/*
 .vs/*
@@ -9,3 +10,4 @@ lichess_bot_auto_logs/*
 *.log
 *.txt
 TEMP/*
+.DS_Store
