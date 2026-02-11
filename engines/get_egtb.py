@@ -1,8 +1,10 @@
 import os
 import requests
 import bs4
-if os.path.isdir("syzygy") == False:
-    os.mkdir("syzygy")
+import sys
+if os.path.isdir("syzygy"):
+    sys.exit()
+os.mkdir("syzygy")
 os.chdir("syzygy")
 dtz_links = bs4.BeautifulSoup(requests.get("https://tablebase.lichess.ovh/tables/standard/3-4-5-dtz/").content, 'html.parser').find_all("a")
 for dtz_link in dtz_links:
