@@ -5,6 +5,7 @@
 !/engines/get_egtb.py
 !/engines/get_book.sh
 !/engines/pgn_config.txt
+!/engines/get_6piece.py
 lichess_bot_auto_logs/*
 .vscode/*
 .vs/*
