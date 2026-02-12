@@ -9,17 +9,17 @@ for year in $(seq -w 2013 2025); do
     if [ ! -d "${year}" ]; then
         mkdir $year
     fi
-    if [ ! -s "${year}/${year}-12.bin"]; then
+    if [ ! -s "${year}/${year}-12.bin" ]; then
         cd $year
         for month in $(seq -w 1 12); do
-            if [ ! -s "${year}/${year}-${month}.bin"]; then
+            if [ ! -s "${year}-${month}.bin" ]; then
                 wget "https://database.lichess.org/standard/lichess_db_standard_rated_${year}-${month}.pgn.zst"
                 pzstd -d "lichess_db_standard_rated_${year}-${month}.pgn.zst" | "../pgn-extract/pgn-extract" -t ../pgn_config.txt -7 -C -N -V "lichess_db_standard_rated_${year}-${month}.pgn.zst"
                 jja make --min-wins 10 --min-games 10 --output "${year}-${month}.bin" "lichess_db_standard_rated_${year}-${month}.pgn"
+                sudo rm "lichess_db_standard_rated_${year}-${month}.pgn"
+                sudo rm "lichess_db_standard_rated_${year}-${month}.pgn.zst"
             fi
         done
-        sudo rm *.pgn
-        sudo rm *.pgn.zst
         cd ..
     fi
 done
