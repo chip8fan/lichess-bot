@@ -16,7 +16,7 @@ for year in $(seq -w 2013 2025); do
                 if [ ! -s "lichess_db_standard_rated_${year}-${month}.pgn.zst" ]; then
                     wget "https://database.lichess.org/standard/lichess_db_standard_rated_${year}-${month}.pgn.zst"
                 fi
-                pzstd -d "lichess_db_standard_rated_${year}-${month}.pgn.zst" | "../pgn-extract/pgn-extract" -t ../pgn_config.txt -7 -C -N -V "lichess_db_standard_rated_${year}-${month}.pgn.zst"
+                pzstd -d "lichess_db_standard_rated_${year}-${month}.pgn.zst" | "../pgn-extract/pgn-extract" -t ../pgn_config.txt -7 -C -N -V "lichess_db_standard_rated_${year}-${month}.pgn"
                 jja make --min-wins 10 --min-games 10 --output "${year}-${month}.bin" "lichess_db_standard_rated_${year}-${month}.pgn"
                 sudo rm "lichess_db_standard_rated_${year}-${month}.pgn"
                 sudo rm "lichess_db_standard_rated_${year}-${month}.pgn.zst"
