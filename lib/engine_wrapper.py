@@ -764,7 +764,7 @@ def get_book_move(board: chess.Board, game: model.Game,
 
     change_value_to_list(polyglot_cfg.config, "book", key=variant)
     books = polyglot_cfg.book.lookup(variant)
-    
+
     for book in books:
         with chess.polyglot.open_reader(book) as reader:
             try:
