@@ -764,30 +764,31 @@ def get_book_move(board: chess.Board, game: model.Game,
 
     change_value_to_list(polyglot_cfg.config, "book", key=variant)
     books = polyglot_cfg.book.lookup(variant)
-    book = random.choice(books)
-    with chess.polyglot.open_reader(book) as reader:
-        try:
-            selection = polyglot_cfg.selection
-            min_weight = polyglot_cfg.min_weight
-            normalization = polyglot_cfg.normalization
-            weights = [entry.weight for entry in reader.find_all(board)]
-            scalar = (sum(weights) if normalization == "sum" and weights else
-                      max(weights) if normalization == "max" and weights else 100)
-            min_weight = min_weight * scalar / 100
+    
+    for book in books:
+        with chess.polyglot.open_reader(book) as reader:
+            try:
+                selection = polyglot_cfg.selection
+                min_weight = polyglot_cfg.min_weight
+                normalization = polyglot_cfg.normalization
+                weights = [entry.weight for entry in reader.find_all(board)]
+                scalar = (sum(weights) if normalization == "sum" and weights else
+                          max(weights) if normalization == "max" and weights else 100)
+                min_weight = min_weight * scalar / 100
 
-            if selection == "weighted_random":
-                move = reader.weighted_choice(board).move
-            elif selection == "uniform_random":
-                move = reader.choice(board, minimum_weight=min_weight).move
-            elif selection == "best_move":
-                move = reader.find(board, minimum_weight=min_weight).move
-        except IndexError:
-            # python-chess raises "IndexError" if no entries found.
-            move = None
+                if selection == "weighted_random":
+                    move = reader.weighted_choice(board).move
+                elif selection == "uniform_random":
+                    move = reader.choice(board, minimum_weight=min_weight).move
+                elif selection == "best_move":
+                    move = reader.find(board, minimum_weight=min_weight).move
+            except IndexError:
+                # python-chess raises "IndexError" if no entries found.
+                move = None
 
-    if move is not None:
-        logger.info(f"Got move {move} from book {book} for game {game.id}")
-        return chess.engine.PlayResult(move, None, {"string": "lichess-bot-source:Opening Book"})
+        if move is not None:
+            logger.info(f"Got move {move} from book {book} for game {game.id}")
+            return chess.engine.PlayResult(move, None, {"string": "lichess-bot-source:Opening Book"})
 
     return no_book_move
 
