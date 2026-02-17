@@ -3,10 +3,7 @@
 /engines/*
 !/engines/README.md
 !/engines/get_egtb.py
-!/engines/get_book.sh
-!/engines/pgn_config.txt
 !/engines/get_6piece.py
-!/engines/get_elite.sh
 lichess_bot_auto_logs/*
 .vscode/*
 .vs/*
