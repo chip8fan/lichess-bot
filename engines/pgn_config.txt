@@ -1,2 +1,0 @@
-WhiteTitle <> "BOT"
-BlackTitle <> "BOT"
