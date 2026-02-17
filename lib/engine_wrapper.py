@@ -155,8 +155,6 @@ class EngineWrapper:
         :param min_time: Minimum time to spend, in seconds.
         :return: The move to play.
         """
-        with open(os.path.join(engine_cfg.log_dir, f"{engine_cfg.name}-fen.txt"), "wb") as file:
-            file.write(board.fen().encode("utf-8"))
         polyglot_cfg = engine_cfg.polyglot
         online_moves_cfg = engine_cfg.online_moves
         draw_or_resign_cfg = engine_cfg.draw_or_resign
@@ -203,14 +201,10 @@ class EngineWrapper:
             time.sleep(to_seconds(min_time - elapsed))
 
         self.add_comment(best_move, board)
-        self.print_stats(engine_cfg.log_dir, engine_cfg.name)
+        self.print_stats()
         if best_move.resigned and len(board.move_stack) >= 2:
             li.resign(game.id)
         else:
-            temp_board = board.copy()
-            temp_board.push(best_move.move)
-            with open(os.path.join(engine_cfg.log_dir, f"{engine_cfg.name}-fen.txt"), "wb") as file:
-                file.write(temp_board.fen().encode("utf-8"))
             li.make_move(game.id, best_move)
 
     def add_go_commands(self, time_limit: chess.engine.Limit) -> chess.engine.Limit:
@@ -334,9 +328,9 @@ class EngineWrapper:
         with contextlib.suppress(IndexError):
             self.move_commentary.pop()
 
-    def print_stats(self, engine_dir: str, engine_name: str) -> None:
+    def print_stats(self) -> None:
         """Print the engine stats."""
-        for line in self.get_stats(engine_dir, engine_name):
+        for line in self.get_stats():
             logger.info(line)
 
     def readable_score(self, relative_score: chess.engine.PovScore) -> str:
@@ -372,7 +366,7 @@ class EngineWrapper:
             return f"{round(number / 1e3, 1)}K"
         return str(number)
 
-    def to_readable_value(self, stat: InfoDictKeys, info: InfoStrDict, engine_dir: str, engine_name: str) -> str:
+    def to_readable_value(self, stat: InfoDictKeys, info: InfoStrDict) -> str:
         """Change a value to a more human-readable format."""
         readable: ReadableType = {"Evaluation": self.readable_score, "Winrate": self.readable_wdl,
                                   "Hashfull": lambda x: f"{round(x / 10, 1)}%", "Nodes": self.readable_number,
@@ -383,15 +377,9 @@ class EngineWrapper:
             return str(x)
 
         func = cast(Callable[[InfoDictValue], str], readable.get(stat, identity))
-        if info.get('Evaluation'):
-            file_contents = readable["Evaluation"](chess.engine.PovScore(info['Evaluation'].white(), chess.WHITE))
-        else:
-            file_contents = info["Source"]
-        with open(os.path.join(engine_dir, f"{engine_name}-eval.txt"), "wb") as file:
-            file.write(file_contents.encode("utf-8"))
         return str(func(info[stat]))
 
-    def get_stats(self, engine_dir: str, engine_name: str, for_chat: bool = False) -> list[str]:
+    def get_stats(self, for_chat: bool = False) -> list[str]:
         """
         Get the stats returned by the engine.
 
@@ -415,7 +403,7 @@ class EngineWrapper:
 
         stats = ["Source", "Evaluation", "Winrate", "Depth", "Nodes", "Speed", "Pv"]
         if for_chat and "Pv" in info:
-            bot_stats = [f"{stat}: {self.to_readable_value(cast(InfoDictKeys, stat), info, engine_dir, engine_name)}"
+            bot_stats = [f"{stat}: {self.to_readable_value(cast(InfoDictKeys, stat), info)}"
                          for stat in stats if stat in info and stat != "Pv"]
             len_bot_stats = len(", ".join(bot_stats)) + PONDERPV_CHARACTERS
             ponder_pv = info["Pv"].split()
@@ -429,7 +417,7 @@ class EngineWrapper:
                 pass
             if not info["Pv"]:
                 info.pop("Pv")
-        return [f"{stat}: {self.to_readable_value(cast(InfoDictKeys, stat), info, engine_dir, engine_name)}" for stat in stats if stat in info]
+        return [f"{stat}: {self.to_readable_value(cast(InfoDictKeys, stat), info)}" for stat in stats if stat in info]
 
     def get_opponent_info(self, game: model.Game) -> None:
         """Get the opponent's information and sends it to the engine."""
