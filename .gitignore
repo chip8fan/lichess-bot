@@ -6,6 +6,7 @@
 !/engines/get_6piece.py
 !/engines/enter_tourneys.py
 !/engines/create_tourneys.py
+!/engines/get_network.py
 lichess_bot_auto_logs/*
 .vscode/*
 .vs/*
